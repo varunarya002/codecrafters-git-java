@@ -15,7 +15,7 @@ public class ZlibDecompressor {
     }
 
     private static String parseContent(String rawContent) {
-        return rawContent.substring(rawContent.indexOf('\0') + 1);
+        return rawContent.substring(rawContent.indexOf('\0') + 1).stripTrailing();
     }
 
     public static String getContent(Path path) throws IOException {
