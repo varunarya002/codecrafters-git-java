@@ -1,3 +1,6 @@
 *.jar
 target/
 .idea/
+.claude
+CLAUDE.md
+test.txt
