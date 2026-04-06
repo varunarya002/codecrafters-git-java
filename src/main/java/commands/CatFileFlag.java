@@ -11,7 +11,7 @@ public enum CatFileFlag {
         @Override
         public void execute(String objectHash) throws IOException {
             String content = ZlibDecompressor.getContent(CommandUtil.extractObjectPath(objectHash));
-            System.out.println(content);
+            System.out.print(content);
         }
     };
 
