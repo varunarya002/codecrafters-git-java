@@ -1,4 +1,4 @@
-package commands;
+package commands.catfile;
 
 import utils.CommandUtil;
 import utils.ZlibDecompressor;
@@ -6,7 +6,7 @@ import utils.ZlibDecompressor;
 import java.io.IOException;
 import java.util.Arrays;
 
-public enum CatFileFlag {
+public enum CatFileMode {
     PRETTY_PRINT("-p") {
         @Override
         public void execute(String objectHash) throws IOException {
@@ -17,13 +17,13 @@ public enum CatFileFlag {
 
     private final String flag;
 
-    CatFileFlag(String flag) {
+    CatFileMode(String flag) {
         this.flag = flag;
     }
 
     public abstract void execute(String objectHash) throws IOException;
 
-    public static CatFileFlag from(String flag) {
+    public static CatFileMode from(String flag) {
         return Arrays.stream(values())
                 .filter(f -> f.flag.equals(flag))
                 .findFirst()
