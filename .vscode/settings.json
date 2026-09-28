@@ -1,3 +1,10 @@
 {
-    "java.debug.settings.onBuildFailureProceed": true
+    "java.debug.settings.onBuildFailureProceed": true,
+    "java.configuration.runtimes": [
+        {
+            "name": "JavaSE-25",
+            "path": "/Users/varunarya/Library/Java/JavaVirtualMachines/openjdk-25.0.2/Contents/Home",
+            "default": true
+        }
+    ]
 }

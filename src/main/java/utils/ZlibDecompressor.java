@@ -13,15 +13,4 @@ public class ZlibDecompressor {
             return in.readAllBytes();
         }
     }
-
-    private static String parseContent(String rawContent) {
-        final int nul = rawContent.indexOf('\0');
-        final String header = rawContent.substring(0, nul);
-        final int length = Integer.parseInt(header.substring(header.indexOf(' ') + 1));
-        return rawContent.substring(nul + 1, nul + 1 + length);
-    }
-
-    public static String getContent(Path path) throws IOException {
-        return parseContent(new String(decompress(path)));
-    }
 }

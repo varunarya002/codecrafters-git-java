@@ -1,0 +1,25 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Debug: cat-file -p 2e6ff3",
+            "request": "launch",
+            "mainClass": "Main",
+            "vmArgs": "--enable-preview",
+            "args": ["cat-file", "-p", "2e6ff3387bb9c785be23d7a1bec1b3154dedff8e"],
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal"
+        },
+        {
+            "type": "java",
+            "name": "Debug: Main (prompt for args)",
+            "request": "launch",
+            "mainClass": "Main",
+            "vmArgs": "--enable-preview",
+            "args": "${command:SpecifyProgramArgs}",
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal"
+        }
+    ]
+}
