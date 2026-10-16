@@ -2,6 +2,7 @@ package commands.catfile;
 
 import utils.CommandUtil;
 import utils.GitObject;
+import utils.ModeUtil;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -55,24 +56,12 @@ public enum CatFileMode {
             final byte[] sha = Arrays.copyOfRange(body, nul + 1, nul + 1 + 20);
             i = nul + 1 + 20;
 
-            out.append(padMode(mode)).append(' ')
-                    .append(typeForMode(mode)).append(' ')
+            out.append(ModeUtil.padMode(mode)).append(' ')
+                    .append(ModeUtil.typeForMode(mode)).append(' ')
                     .append(toHex(sha)).append('\t')
                     .append(name).append('\n');
         }
         System.out.print(out);
-    }
-
-    private static String padMode(String mode) {
-        return "0".repeat(Math.max(0, 6 - mode.length())) + mode;
-    }
-
-    private static String typeForMode(String mode) {
-        return switch (mode) {
-            case "40000" -> "tree";
-            case "160000" -> "commit";
-            default -> "blob";
-        };
     }
 
     private static String toHex(byte[] bytes) {

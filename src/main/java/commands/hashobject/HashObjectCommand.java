@@ -30,15 +30,31 @@ public class HashObjectCommand implements Command {
         }
     }
 
+    /** Hashes and stores an object of the given type, returning its SHA-1 hex digest. */
+    public static String write(String type, byte[] content) throws IOException {
+        final byte[] object = object(type, content);
+        final String hash = Sha1.hexDigest(object);
+        writeObject(hash, object);
+        return hash;
+    }
+
     private static byte[] blob(byte[] content) throws IOException {
+        return object("blob", content);
+    }
+
+    private static byte[] object(String type, byte[] content) throws IOException {
         final var out = new ByteArrayOutputStream();
-        out.write(("blob " + content.length + "\0").getBytes(StandardCharsets.UTF_8));
+        out.write((type + " " + content.length + "\0").getBytes(StandardCharsets.UTF_8));
         out.write(content);
         return out.toByteArray();
     }
 
     private static void writeObject(String hash, byte[] blob) throws IOException {
         final Path objectPath = CommandUtil.extractObjectPath(hash);
+        if (Files.exists(objectPath)) {
+            // Same content, same name: git keeps the existing (read-only) file.
+            return;
+        }
         Files.createDirectories(objectPath.getParent());
         Files.write(objectPath, ZlibCompressor.compress(blob));
     }

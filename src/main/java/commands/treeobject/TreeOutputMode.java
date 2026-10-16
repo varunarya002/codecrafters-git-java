@@ -1,17 +1,14 @@
 package commands.treeobject;
 
+import utils.ModeUtil;
+
 import java.util.HexFormat;
 
 enum TreeOutputMode {
     FULL("") {
         @Override
         String format(String mode, String name, byte[] body, int shaOffset) {
-            final String type = switch (mode) {
-                case "40000", "040000" -> "tree";
-                case "160000" -> "commit";
-                default -> "blob";
-            };
-            return "0".repeat(Math.max(0, 6 - mode.length())) + mode + " " + type + " "
+            return ModeUtil.padMode(mode) + " " + ModeUtil.typeForMode(mode) + " "
                     + HexFormat.of().formatHex(body, shaOffset, shaOffset + 20) + "\t" + name;
         }
     },

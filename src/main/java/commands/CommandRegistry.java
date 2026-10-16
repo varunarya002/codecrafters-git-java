@@ -4,6 +4,7 @@ import commands.catfile.CatFileCommand;
 import commands.hashobject.HashObjectCommand;
 import commands.init.InitCommand;
 import commands.treeobject.ReadTreeObjectCommand;
+import commands.treeobject.WriteTreeObjectCommand;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,6 +18,7 @@ public final class CommandRegistry {
         register("cat-file", new CatFileCommand());
         register("hash-object", new HashObjectCommand());
         register("ls-tree", new ReadTreeObjectCommand());
+        register("write-tree", new WriteTreeObjectCommand());
     }
 
     private CommandRegistry() {
