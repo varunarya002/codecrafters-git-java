@@ -20,6 +20,15 @@
             "args": "${command:SpecifyProgramArgs}",
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal"
+        },
+        {
+            "type": "java",
+            "name": "Debug write-tree",
+            "request": "launch",
+            "mainClass": "Main",
+            "args": "write-tree",
+            "vmArgs": "--enable-preview",
+            "cwd": "${workspaceFolder}"
         }
     ]
 }

@@ -1,7 +1,9 @@
 package commands.treeobject;
 
 import commands.Command;
-import commands.hashobject.HashObjectCommand;
+import utils.GitPath;
+import utils.ObjectType;
+import utils.ObjectWriter;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -17,13 +19,11 @@ import java.util.stream.Stream;
 
 public class WriteTreeObjectCommand implements Command {
 
-    private static final String GIT_DIR = ".git";
-
     @Override
     public void execute(String[] args) {
         try {
             final String treeSha = writeTree(Path.of("."));
-            System.out.println(treeSha != null ? treeSha : HashObjectCommand.write("tree", new byte[0]));
+            System.out.println(treeSha != null ? treeSha : ObjectWriter.write(ObjectType.TREE, new byte[0]));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -35,7 +35,7 @@ public class WriteTreeObjectCommand implements Command {
         try (Stream<Path> children = Files.list(dir)) {
             for (Path child : children.toList()) {
                 final String name = child.getFileName().toString();
-                if (name.equals(GIT_DIR)) {//This is to ignore .git directory
+                if (name.equals(GitPath.ROOT.value())) {//This is to ignore .git directory
                     continue;
                 }
                 if (Files.isDirectory(child, LinkOption.NOFOLLOW_LINKS)) {
@@ -44,7 +44,7 @@ public class WriteTreeObjectCommand implements Command {
                         entries.add(new Entry(FileMode.DIRECTORY, name, hash));
                     }
                 } else if (Files.isRegularFile(child, LinkOption.NOFOLLOW_LINKS)) {
-                    final String hash = HashObjectCommand.write("blob", Files.readAllBytes(child));
+                    final String hash = ObjectWriter.write(ObjectType.BLOB, Files.readAllBytes(child));
                     entries.add(new Entry(FileMode.of(child), name, hash));
                 }
             }
@@ -53,7 +53,7 @@ public class WriteTreeObjectCommand implements Command {
             return null;
         }
         entries.sort(Comparator.comparing(Entry::sortKey));
-        return HashObjectCommand.write("tree", body(entries));
+        return ObjectWriter.write(ObjectType.TREE, body(entries));
     }
 
     private static byte[] body(List<Entry> entries) throws IOException {

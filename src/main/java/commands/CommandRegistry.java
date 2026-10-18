@@ -1,6 +1,7 @@
 package commands;
 
 import commands.catfile.CatFileCommand;
+import commands.committree.CommitTreeCommand;
 import commands.hashobject.HashObjectCommand;
 import commands.init.InitCommand;
 import commands.treeobject.ReadTreeObjectCommand;
@@ -19,6 +20,7 @@ public final class CommandRegistry {
         register("hash-object", new HashObjectCommand());
         register("ls-tree", new ReadTreeObjectCommand());
         register("write-tree", new WriteTreeObjectCommand());
+        register("commit-tree", new CommitTreeCommand());
     }
 
     private CommandRegistry() {

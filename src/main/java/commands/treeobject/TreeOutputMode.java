@@ -1,21 +1,22 @@
 package commands.treeobject;
 
-import utils.ModeUtil;
+import utils.TreeBody;
 
 import java.util.HexFormat;
 
-enum TreeOutputMode {
+public enum TreeOutputMode {
     FULL("") {
         @Override
-        String format(String mode, String name, byte[] body, int shaOffset) {
-            return ModeUtil.padMode(mode) + " " + ModeUtil.typeForMode(mode) + " "
-                    + HexFormat.of().formatHex(body, shaOffset, shaOffset + 20) + "\t" + name;
+        String format(TreeBody.Entry entry) {
+            final FileMode mode = FileMode.from(entry.mode());
+            return mode.paddedValue() + " " + mode.type().value() + " "
+                    + HexFormat.of().formatHex(entry.sha()) + "\t" + entry.name();
         }
     },
     NAME_ONLY("--name-only") {
         @Override
-        String format(String mode, String name, byte[] body, int shaOffset) {
-            return name;
+        String format(TreeBody.Entry entry) {
+            return entry.name();
         }
     };
 
@@ -32,5 +33,13 @@ enum TreeOutputMode {
         throw new IllegalArgumentException("Usage: ls-tree [--name-only] <tree-sha>");
     }
 
-    abstract String format(String mode, String name, byte[] body, int shaOffset);
+    public String render(byte[] treeBody) {
+        final StringBuilder output = new StringBuilder();
+        for (TreeBody.Entry entry : TreeBody.parse(treeBody)) {
+            output.append(format(entry)).append('\n');
+        }
+        return output.toString();
+    }
+
+    abstract String format(TreeBody.Entry entry);
 }

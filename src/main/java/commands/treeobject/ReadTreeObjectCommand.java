@@ -6,7 +6,6 @@ import utils.GitObject;
 import utils.Sha1;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 
 public class ReadTreeObjectCommand implements Command {
 
@@ -20,7 +19,7 @@ public class ReadTreeObjectCommand implements Command {
             if (!"tree".equals(object.type())) {
                 throw new IllegalArgumentException("Not a tree object: " + treeSha);
             }
-            printEntries(object.body(), parsed.flag());
+            System.out.print(parsed.flag().render(object.body()));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -37,24 +36,6 @@ public class ReadTreeObjectCommand implements Command {
         }
         Sha1.validateHexDigest(parsed.treeSha());
         return parsed;
-    }
-
-    private static void printEntries(byte[] body, TreeOutputMode flag) {
-        final StringBuilder output = new StringBuilder();
-        int offset = 0;
-        while (offset < body.length) {
-            final int space = GitObject.indexOf(body, (byte) ' ', offset);
-            final int nul = space < 0 ? -1 : GitObject.indexOf(body, (byte) 0, space + 1);
-            if (space < 0 || nul < 0 || body.length - nul - 1 < 20) {
-                throw new IllegalArgumentException("Malformed tree object");
-            }
-
-            final String mode = new String(body, offset, space - offset, StandardCharsets.US_ASCII);
-            final String name = new String(body, space + 1, nul - space - 1, StandardCharsets.UTF_8);
-            output.append(flag.format(mode, name, body, nul + 1)).append('\n');
-            offset = nul + 21;
-        }
-        System.out.print(output);
     }
 
     private record ParsedArguments(TreeOutputMode flag, String treeSha) {
