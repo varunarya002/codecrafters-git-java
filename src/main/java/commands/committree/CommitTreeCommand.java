@@ -1,6 +1,8 @@
 package commands.committree;
 
 import commands.Command;
+import utils.CommitHeader;
+import utils.GitConstants;
 import utils.ObjectType;
 import utils.ObjectWriter;
 import utils.Sha1;
@@ -17,27 +19,17 @@ public class CommitTreeCommand implements Command {
 
     private static final String AUTHOR = "Codecrafters User <user@example.com>";
     private static final String USAGE = "Usage: commit-tree <tree-sha> [-p <parent-sha>] -m <message>";
+    private static final String MISSING_VALUE = "Missing value for ";
 
     private static final String PARENT_FLAG = "-p";
     private static final String MESSAGE_FLAG = "-m";
 
-    private static final String TREE_KEY = "tree";
-    private static final String PARENT_KEY = "parent";
-    private static final String AUTHOR_KEY = "author";
-    private static final String COMMITTER_KEY = "committer";
-
-    private static final String SPACE = " ";
-    private static final String LINE_END = "\n";
     private static final DateTimeFormatter TIMEZONE_OFFSET = DateTimeFormatter.ofPattern("xx");
 
     @Override
-    public void execute(String[] args) {
+    public void execute(String[] args) throws IOException {
         final ParsedArguments parsed = parseArguments(args);
-        try {
-            System.out.println(ObjectWriter.write(ObjectType.COMMIT, commit(parsed)));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        System.out.println(ObjectWriter.write(ObjectType.COMMIT, commit(parsed)));
     }
 
     private static ParsedArguments parseArguments(String[] args) {
@@ -53,10 +45,10 @@ public class CommitTreeCommand implements Command {
             final String option = tokens.poll();
             switch (option) {
                 case PARENT_FLAG -> {
-                    parentSha = nextValue(tokens, "Missing value for " + option);
+                    parentSha = nextValue(tokens, MISSING_VALUE + option);
                     Sha1.validateHexDigest(parentSha);
                 }
-                case MESSAGE_FLAG -> message = nextValue(tokens, "Missing value for " + option);
+                case MESSAGE_FLAG -> message = nextValue(tokens, MISSING_VALUE + option);
                 default -> throw new IllegalArgumentException("Unknown option: " + option);
             }
         }
@@ -76,23 +68,20 @@ public class CommitTreeCommand implements Command {
 
     /** Commit body: header lines, a blank line, then the message. Tree and parent are hex SHAs. */
     private static byte[] commit(ParsedArguments parsed) {
-        final String signature = AUTHOR + SPACE + timestamp(OffsetDateTime.now());
-        final String parent = parsed.parentSha() == null ? "" : header(PARENT_KEY, parsed.parentSha());
+        final String signature = AUTHOR + GitConstants.SPACE + timestamp(OffsetDateTime.now());
+        final String parent = parsed.parentSha() == null ? "" : CommitHeader.PARENT.line(parsed.parentSha());
 
-        final String headers = header(TREE_KEY, parsed.treeSha())
+        final String headers = CommitHeader.TREE.line(parsed.treeSha())
                 + parent
-                + header(AUTHOR_KEY, signature)
-                + header(COMMITTER_KEY, signature);
+                + CommitHeader.AUTHOR.line(signature)
+                + CommitHeader.COMMITTER.line(signature);
 
-        return (headers + LINE_END + parsed.message() + LINE_END).getBytes(StandardCharsets.UTF_8);
-    }
-
-    private static String header(String key, String value) {
-        return key + SPACE + value + LINE_END;
+        return (headers + GitConstants.NEWLINE + parsed.message() + GitConstants.NEWLINE)
+                .getBytes(StandardCharsets.UTF_8);
     }
 
     private static String timestamp(OffsetDateTime now) {
-        return now.toEpochSecond() + SPACE + now.format(TIMEZONE_OFFSET);
+        return now.toEpochSecond() + GitConstants.SPACE + now.format(TIMEZONE_OFFSET);
     }
 
     private record ParsedArguments(String treeSha, String parentSha, String message) {

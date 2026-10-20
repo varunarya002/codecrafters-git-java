@@ -23,7 +23,7 @@ public class ObjectWriter {
 
     private static byte[] object(ObjectType type, byte[] content) throws IOException {
         final var out = new ByteArrayOutputStream();
-        out.write((type.value() + " " + content.length + "\0").getBytes(StandardCharsets.UTF_8));
+        out.write(GitObject.header(type, content.length).getBytes(StandardCharsets.UTF_8));
         out.write(content);
         return out.toByteArray();
     }

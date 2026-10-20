@@ -1,5 +1,7 @@
 package commands.treeobject;
 
+import utils.FileMode;
+import utils.GitConstants;
 import utils.TreeBody;
 
 import java.util.HexFormat;
@@ -9,8 +11,8 @@ public enum TreeOutputMode {
         @Override
         String format(TreeBody.Entry entry) {
             final FileMode mode = FileMode.from(entry.mode());
-            return mode.paddedValue() + " " + mode.type().value() + " "
-                    + HexFormat.of().formatHex(entry.sha()) + "\t" + entry.name();
+            return mode.paddedValue() + GitConstants.SPACE + mode.type().value() + GitConstants.SPACE
+                    + HexFormat.of().formatHex(entry.sha()) + GitConstants.TAB + entry.name();
         }
     },
     NAME_ONLY("--name-only") {
@@ -19,6 +21,8 @@ public enum TreeOutputMode {
             return entry.name();
         }
     };
+
+    static final String USAGE = "Usage: ls-tree [--name-only] <tree-sha>";
 
     private final String flag;
 
@@ -30,13 +34,13 @@ public enum TreeOutputMode {
         if (NAME_ONLY.flag.equals(flag)) {
             return NAME_ONLY;
         }
-        throw new IllegalArgumentException("Usage: ls-tree [--name-only] <tree-sha>");
+        throw new IllegalArgumentException(USAGE);
     }
 
     public String render(byte[] treeBody) {
         final StringBuilder output = new StringBuilder();
         for (TreeBody.Entry entry : TreeBody.parse(treeBody)) {
-            output.append(format(entry)).append('\n');
+            output.append(format(entry)).append(GitConstants.NEWLINE);
         }
         return output.toString();
     }

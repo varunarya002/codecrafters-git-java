@@ -29,6 +29,15 @@
             "args": "write-tree",
             "vmArgs": "--enable-preview",
             "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "java",
+            "name": "Debug clone-repo",
+            "request": "launch",
+            "mainClass": "Main",
+            "args": ["clone", "https://github.com/octocat/Hello-World.git", "sed_life"],
+            "vmArgs": "--enable-preview",
+            "cwd": "${workspaceFolder}"
         }
     ]
 }

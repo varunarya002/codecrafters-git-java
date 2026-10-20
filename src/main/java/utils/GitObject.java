@@ -14,15 +14,15 @@ import java.util.Arrays;
  */
 public class GitObject {
 
-    private final String type;
+    private final ObjectType type;
     private final byte[] body;
 
-    private GitObject(String type, byte[] body) {
+    private GitObject(ObjectType type, byte[] body) {
         this.type = type;
         this.body = body;
     }
 
-    public String type() {
+    public ObjectType type() {
         return type;
     }
 
@@ -30,12 +30,17 @@ public class GitObject {
         return body;
     }
 
+    /** The {@code <type> <size>\0} header that precedes every object's body. */
+    public static String header(ObjectType type, int size) {
+        return type.value() + GitConstants.SPACE + size + GitConstants.NUL;
+    }
+
     public static GitObject read(Path path) throws IOException {
         final byte[] raw = ZlibDecompressor.decompress(path);
-        final int nul = indexOf(raw, (byte) 0, 0);
+        final int nul = indexOf(raw, GitConstants.NUL_BYTE, 0);
         final String header = new String(raw, 0, nul, StandardCharsets.US_ASCII);
-        final int space = header.indexOf(' ');
-        final String type = header.substring(0, space);
+        final int space = header.indexOf(GitConstants.SPACE);
+        final ObjectType type = ObjectType.from(header.substring(0, space));
         final int size = Integer.parseInt(header.substring(space + 1));
         final byte[] body = Arrays.copyOfRange(raw, nul + 1, nul + 1 + size);
         return new GitObject(type, body);

@@ -3,6 +3,7 @@ package commands.catfile;
 import commands.treeobject.TreeOutputMode;
 import utils.CommandUtil;
 import utils.GitObject;
+import utils.ObjectType;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -12,7 +13,7 @@ public enum CatFileMode {
         @Override
         public void execute(String objectHash) throws IOException {
             final GitObject object = GitObject.read(CommandUtil.extractObjectPath(objectHash));
-            if ("tree".equals(object.type())) {
+            if (object.type() == ObjectType.TREE) {
                 System.out.print(TreeOutputMode.FULL.render(object.body()));
             } else {
                 // blob, commit, tag: body is the verbatim payload — write the raw bytes so binary

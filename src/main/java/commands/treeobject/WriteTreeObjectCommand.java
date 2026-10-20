@@ -1,6 +1,8 @@
 package commands.treeobject;
 
 import commands.Command;
+import utils.FileMode;
+import utils.GitConstants;
 import utils.GitPath;
 import utils.ObjectType;
 import utils.ObjectWriter;
@@ -19,14 +21,13 @@ import java.util.stream.Stream;
 
 public class WriteTreeObjectCommand implements Command {
 
+    private static final Path WORKING_DIRECTORY = Path.of(".");
+    private static final String DIRECTORY_SORT_SUFFIX = "/";
+
     @Override
-    public void execute(String[] args) {
-        try {
-            final String treeSha = writeTree(Path.of("."));
-            System.out.println(treeSha != null ? treeSha : ObjectWriter.write(ObjectType.TREE, new byte[0]));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    public void execute(String[] args) throws IOException {
+        final String treeSha = writeTree(WORKING_DIRECTORY);
+        System.out.println(treeSha != null ? treeSha : ObjectWriter.write(ObjectType.TREE, new byte[0]));
     }
 
     /** Stores the tree for {@code dir}, or returns null when it holds no files (git skips empty directories). */
@@ -59,7 +60,8 @@ public class WriteTreeObjectCommand implements Command {
     private static byte[] body(List<Entry> entries) throws IOException {
         final var out = new ByteArrayOutputStream();
         for (Entry entry : entries) {
-            out.write((entry.mode().value() + " " + entry.name() + "\0").getBytes(StandardCharsets.UTF_8));
+            out.write((entry.mode().value() + GitConstants.SPACE + entry.name() + GitConstants.NUL)
+                    .getBytes(StandardCharsets.UTF_8));
             out.write(HexFormat.of().parseHex(entry.hash()));
         }
         return out.toByteArray();
@@ -72,7 +74,7 @@ public class WriteTreeObjectCommand implements Command {
     private record Entry(FileMode mode, String name, String hash) {
 
         String sortKey() {
-            return mode == FileMode.DIRECTORY ? name + "/" : name;
+            return mode == FileMode.DIRECTORY ? name + DIRECTORY_SORT_SUFFIX : name;
         }
     }
 }

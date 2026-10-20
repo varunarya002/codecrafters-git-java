@@ -1,27 +1,22 @@
 package commands.init;
 
 import commands.Command;
+import utils.GitConstants;
 import utils.GitPath;
+import utils.RefWriter;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 
 public class InitCommand implements Command {
 
     @Override
-    public void execute(String[] args) {
+    public void execute(String[] args) throws IOException {
         final File root = new File(GitPath.ROOT.value());
         new File(GitPath.OBJECTS.value()).mkdirs();
         new File(GitPath.REFS.value()).mkdirs();
-        final File head = new File(GitPath.HEAD.value());
 
-        try {
-            head.createNewFile();
-            Files.write(head.toPath(), "ref: refs/heads/main\n".getBytes());
-            System.out.println("Initialized git directory in " + root.getCanonicalPath() + "/");
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        RefWriter.writeSymbolic(GitPath.HEAD.resolve(), GitPath.HEADS.refName(GitConstants.DEFAULT_BRANCH));
+        System.out.println("Initialized git directory in " + root.getCanonicalPath() + "/");
     }
 }

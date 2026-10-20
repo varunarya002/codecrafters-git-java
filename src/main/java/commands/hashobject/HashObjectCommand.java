@@ -10,17 +10,15 @@ import java.nio.file.Path;
 
 public class HashObjectCommand implements Command {
 
-    @Override
-    public void execute(String[] args) {
-        try {
-            final byte[] content = Files.readAllBytes(Path.of(args[2]));
-            final String hash = "-w".equals(args[1])
-                    ? ObjectWriter.write(ObjectType.BLOB, content)
-                    : ObjectWriter.hash(ObjectType.BLOB, content);
+    private static final String WRITE_FLAG = "-w";
 
-            System.out.println(hash);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    @Override
+    public void execute(String[] args) throws IOException {
+        final byte[] content = Files.readAllBytes(Path.of(args[2]));
+        final String hash = WRITE_FLAG.equals(args[1])
+                ? ObjectWriter.write(ObjectType.BLOB, content)
+                : ObjectWriter.hash(ObjectType.BLOB, content);
+
+        System.out.println(hash);
     }
 }
